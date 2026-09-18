@@ -21,7 +21,7 @@ def get_today_checkin() -> TodayCheckin:
 
     return TodayCheckin(
         date=date.today(),
-        form_version="2026-09-18",
+        form_version="2026-09-19",
         title="MindTrail – Student Wellbeing Check-in",
         description=(
             "A short, private-feeling daily check-in designed for the MindTrail "
@@ -32,15 +32,8 @@ def get_today_checkin() -> TodayCheckin:
             CheckinSection(
                 id="about_you",
                 title="1. A little about you",
-                description="Only provide information necessary for your wellbeing check-in.",
+                description="A broad study-year choice adds context without asking for an identifier.",
                 questions=[
-                    CheckinQuestion(
-                        id="student_id",
-                        prompt="Student ID (optional)",
-                        type="text",
-                        required=False,
-                        help_text="Leave blank if you prefer not to provide it.",
-                    ),
                     CheckinQuestion(
                         id="year_of_study",
                         prompt="Year of study",
@@ -241,4 +234,3 @@ def get_today_checkin() -> TodayCheckin:
             "support service. Do not rely on MindTrail for emergency assistance."
         ),
     )
-

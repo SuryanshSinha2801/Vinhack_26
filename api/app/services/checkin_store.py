@@ -13,6 +13,13 @@ workbook_lock = Lock()
 ENERGY_VALUES = {"Very low": 1, "Low": 2, "Moderate": 3, "Good": 4, "Very good": 5}
 
 
+def expand_table(sheet, last_column: str) -> None:
+    """Keep the visible Excel table/filter range aligned with appended records."""
+    if sheet.tables:
+        first_table = next(iter(sheet.tables.values()))
+        first_table.ref = f"A1:{last_column}{sheet.max_row}"
+
+
 def validate_submission(submission: CheckinSubmission) -> None:
     form = get_today_checkin()
     if submission.form_version != form.form_version:
@@ -64,6 +71,7 @@ def save_checkin(username: str, submission: CheckinSubmission) -> CheckinSubmiss
                 history.cell(existing_row, column, value)
         else:
             history.append(values)
+        expand_table(history, "J")
 
         if "Check-in Submissions" not in workbook.sheetnames:
             audit = workbook.create_sheet("Check-in Submissions")
@@ -74,6 +82,7 @@ def save_checkin(username: str, submission: CheckinSubmission) -> CheckinSubmiss
             datetime.now(timezone.utc).replace(tzinfo=None), username, today,
             submission.form_version, json.dumps(answers, ensure_ascii=False),
         ])
+        expand_table(audit, "E")
         workbook.save(WORKBOOK_PATH)
         workbook.close()
     return CheckinSubmissionResult(

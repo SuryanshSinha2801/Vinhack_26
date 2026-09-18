@@ -19,6 +19,11 @@ def test_demo_dashboard_returns_only_logged_in_users_history() -> None:
     assert response.status_code == 200
     dashboard = response.json()["data"]
     assert dashboard["username"] == "arjun01"
-    assert dashboard["summary"]["days"] == 15
-    assert len(dashboard["history"]) == 15
-    assert all(item["date"] >= "2026-09-05" for item in dashboard["history"])
+    assert dashboard["summary"]["days"] >= 15
+    assert len(dashboard["history"]) >= 15
+    dates = [item["date"] for item in dashboard["history"]]
+    assert dates == sorted(dates)
+    assert dates[-1] >= "2026-09-19"
+    assert dashboard["insight"]["level"] in {"stable", "watch", "elevated"}
+    assert dashboard["insight"]["model_version"] == "mindtrail-synthetic-v1"
+    assert len(dashboard["insight"]["suggestions"]) >= 2

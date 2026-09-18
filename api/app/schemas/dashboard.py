@@ -1,6 +1,6 @@
 from datetime import date
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class DailyWellbeingRecord(BaseModel):
@@ -24,8 +24,22 @@ class DashboardSummary(BaseModel):
     latest_stress: float
 
 
+class WellbeingInsight(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
+
+    level: str
+    score: int
+    confidence: float
+    summary: str
+    factors: list[str]
+    suggestions: list[str]
+    model_version: str
+    disclaimer: str
+
+
 class UserDashboard(BaseModel):
     username: str
     display_name: str
     summary: DashboardSummary
     history: list[DailyWellbeingRecord]
+    insight: WellbeingInsight | None = None

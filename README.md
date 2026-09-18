@@ -106,4 +106,6 @@ uvicorn api.app.main:app --reload
 
 Open `http://127.0.0.1:8000/` for the website or `http://127.0.0.1:8000/docs` for the API documentation. If Uvicorn was already running before the frontend was added, stop it with `Ctrl+C` and start it again.
 
-Five fictional username/password accounts and 15 days of synthetic history are available in [`data/demo/mindtrail_demo.xlsx`](./data/demo/mindtrail_demo.xlsx). See [`docs/DEMO_DATA.md`](./docs/DEMO_DATA.md) for the credentials and safety limits.
+Forty fictional username/password accounts and 180 days of synthetic history (7,200 records) are available in [`data/demo/mindtrail_demo_6_months.xlsx`](./data/demo/mindtrail_demo_6_months.xlsx). The same records are exported to [`data/ml/wellbeing_6_months_40_users.csv`](./data/ml/wellbeing_6_months_40_users.csv) for reproducible ML training. See [`docs/DEMO_DATA.md`](./docs/DEMO_DATA.md) for credentials and safety limits.
+
+The dashboard includes a compact PyTorch trend classifier trained on rolling seven-day signals. It was trained on an RTX 5060 with eight users held out for testing. Its output is a synthetic-data demo indicator, never a diagnosis or an automated care decision. Training details are in [`docs/ML_MODEL.md`](./docs/ML_MODEL.md).

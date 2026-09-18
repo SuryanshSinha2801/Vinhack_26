@@ -6,7 +6,7 @@
 
 ## Local demo workbook
 
-`data/demo/mindtrail_demo.xlsx` temporarily supplies five fictional accounts and 15 days of synthetic history. At startup, missing demo accounts are imported from the `Demo Users` sheet and their passwords are hashed before local storage.
+`data/demo/mindtrail_demo_6_months.xlsx` temporarily supplies 40 fictional accounts and 180 days of synthetic history. At startup, missing demo accounts are imported from populated `Demo Users` rows and their passwords are hashed before local storage. Submitted check-ins are upserted by username and date, appended to the audit sheet, and returned through the date-wise dashboard API.
 
 Excel is not the production database. It lacks suitable concurrency, row-level access control, auditability, and safeguards for real wellbeing records. PostgreSQL remains the intended persistent store; Supabase remains a possible production authentication provider.
 

@@ -2,6 +2,7 @@ from openpyxl import load_workbook
 
 from api.app.schemas.dashboard import DailyWellbeingRecord, DashboardSummary, UserDashboard
 from api.app.services.demo_users import WORKBOOK_PATH
+from api.app.services.wellbeing_model import predict_wellbeing
 
 
 def get_user_dashboard(username: str, display_name: str) -> UserDashboard | None:
@@ -30,6 +31,7 @@ def get_user_dashboard(username: str, display_name: str) -> UserDashboard | None
     workbook.close()
     if not history:
         return None
+    history.sort(key=lambda item: item.date)
     latest = history[-1]
     count = len(history)
     summary = DashboardSummary(
@@ -40,4 +42,10 @@ def get_user_dashboard(username: str, display_name: str) -> UserDashboard | None
         latest_mood=latest.mood,
         latest_stress=latest.stress,
     )
-    return UserDashboard(username=username, display_name=display_name, summary=summary, history=history)
+    return UserDashboard(
+        username=username,
+        display_name=display_name,
+        summary=summary,
+        history=history,
+        insight=predict_wellbeing(history),
+    )

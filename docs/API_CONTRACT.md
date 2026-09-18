@@ -38,7 +38,7 @@ This exposes the development server to the local network. Do not use the develop
 | `POST` | `/v1/auth/login` | None | Implemented for local demo |
 | `GET` | `/v1/auth/me` | Session cookie or bearer token | Implemented for local demo |
 | `POST` | `/v1/auth/logout` | Session cookie | Implemented for local demo |
-| `GET` | `/v1/me/dashboard` | Session cookie or bearer token | Implemented from synthetic Excel history |
+| `GET` | `/v1/me/dashboard` | Session cookie or bearer token | Date-wise Excel history plus a non-diagnostic ML trend indicator |
 | `POST` | `/v1/checkins` | Session cookie or bearer token | Implemented; validates and stores the signed-in user's check-in |
 
 ## Planned routes

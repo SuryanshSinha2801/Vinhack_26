@@ -26,11 +26,11 @@ def test_today_checkin_matches_form_structure() -> None:
         for section in checkin["sections"]
         for question in section["questions"]
     }
-    assert len(questions) == 16
+    assert len(questions) == 15
     assert questions["overall_mood"]["min_value"] == 1
     assert questions["overall_mood"]["max_value"] == 5
     assert questions["stress_level"]["max_label"] == "Very high"
-    assert questions["student_id"]["required"] is False
+    assert "student_id" not in questions
     assert questions["privacy_acknowledgement"]["required"] is True
 
 
@@ -57,7 +57,7 @@ def test_immediate_help_option_triggers_support_path() -> None:
 
 
 def test_authenticated_checkin_is_saved_to_excel(tmp_path, monkeypatch) -> None:
-    source = Path("data/demo/mindtrail_demo.xlsx")
+    source = Path("data/demo/mindtrail_demo_6_months.xlsx")
     target = tmp_path / "demo.xlsx"
     copy2(source, target)
     monkeypatch.setattr("api.app.services.checkin_store.WORKBOOK_PATH", target)
@@ -69,7 +69,7 @@ def test_authenticated_checkin_is_saved_to_excel(tmp_path, monkeypatch) -> None:
     response = client.post(
         "/v1/checkins",
         json={
-            "form_version": "2026-09-18",
+            "form_version": "2026-09-19",
             "answers": {
                 "year_of_study": "Year 2",
                 "overall_mood": 4,

@@ -1,0 +1,42 @@
+{
+  "model_version": "mindtrail-synthetic-v1",
+  "trained_at_utc": "2026-09-18T23:48:02.261430+00:00",
+  "device": "cuda",
+  "gpu": "NVIDIA GeForce RTX 5060 Laptop GPU",
+  "dataset_rows": 7200,
+  "training_samples": 5568,
+  "test_samples": 1392,
+  "held_out_users": [
+    "arjun01",
+    "demo06",
+    "demo23",
+    "demo26",
+    "demo28",
+    "demo29",
+    "demo33",
+    "demo34"
+  ],
+  "accuracy": 0.6846,
+  "macro_f1": 0.6005,
+  "labels": [
+    "stable",
+    "watch",
+    "elevated"
+  ],
+  "features": [
+    "mood_mean_7d",
+    "stress_mean_7d",
+    "sleep_mean_7d",
+    "energy_mean_7d",
+    "connectedness_mean_7d",
+    "mood_slope_7d",
+    "stress_slope_7d",
+    "sleep_slope_7d",
+    "energy_slope_7d",
+    "connectedness_slope_7d",
+    "mood_std_7d",
+    "stress_std_7d",
+    "completion_rate_7d"
+  ],
+  "limitations": "Synthetic-data demonstration only; not diagnostic or suitable for automated care decisions."
+}

@@ -32,7 +32,9 @@ nltk==3.9.1
 textblob==0.18.0.post0
 vaderSentiment==3.3.2
 transformers==4.44.2
-torch==2.4.1
+# RTX 5060 training was verified with the CUDA 12.8 wheel:
+# pip install torch==2.11.0+cu128 --index-url https://download.pytorch.org/whl/cu128
+torch==2.11.0
 scikit-learn==1.5.2
 
 # --- LLM-based deep conversation flow ---
