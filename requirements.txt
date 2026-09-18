@@ -1,0 +1,55 @@
+# MindTrail Backend — Python Dependencies
+# Install with: pip install -r requirements.txt
+
+# --- Web framework / API ---
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+pydantic==2.9.2
+pydantic-settings==2.5.2
+
+# --- Database ---
+sqlalchemy==2.0.35
+alembic==1.13.2
+psycopg2-binary==2.9.9
+asyncpg==0.29.0
+
+# --- Auth / security ---
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-multipart==0.0.9
+
+# --- Scheduling / background jobs (data ingestion sync) ---
+apscheduler==3.10.4
+celery==5.4.0
+redis==5.0.8
+
+# --- HTTP client (webhook / college API ingestion) ---
+httpx==0.27.2
+requests==2.32.3
+
+# --- NLP / sentiment & tone analysis ---
+nltk==3.9.1
+textblob==0.18.0.post0
+vaderSentiment==3.3.2
+transformers==4.44.2
+torch==2.4.1
+scikit-learn==1.5.2
+
+# --- LLM-based deep conversation flow ---
+anthropic==0.34.2
+openai==1.47.1
+
+# --- Data processing (pattern / baseline engine) ---
+pandas==2.2.2
+numpy==1.26.4
+
+# --- Environment / config ---
+python-dotenv==1.0.1
+
+# --- Testing ---
+pytest==8.3.3
+pytest-asyncio==0.24.0
+httpx==0.27.2
+
+# --- Logging / monitoring ---
+loguru==0.7.2
