@@ -17,6 +17,10 @@ venv/
 .coverage
 htmlcov/
 
+# Private student wellbeing exports and local seed data
+MindTrail – Student Wellbeing Check-in.csv
+data/private/
+
 # Editors and operating systems
 .idea/
 .vscode/
