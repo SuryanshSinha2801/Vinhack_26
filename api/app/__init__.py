@@ -1,0 +1,2 @@
+"""MindTrail FastAPI application."""
+
