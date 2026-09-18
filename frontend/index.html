@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#fff8f0"><title>MindTrail</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css?v=20260919-6">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="app-shell">
+    <aside class="rail" aria-label="Primary navigation">
+      <a class="brand" href="#today"><span class="brand-mark">M</span><span>MindTrail</span></a>
+      <nav id="desktop-nav" class="nav-list"></nav>
+      <button class="support-link" data-crisis-open><span>♡</span><span>Get urgent support</span></button>
+      <div class="privacy-note"><span class="status-dot"></span><span>Your draft stays on this device</span></div>
+    </aside>
+    <main id="main" tabindex="-1"><div id="app" aria-live="polite"></div></main>
+    <nav id="mobile-nav" class="bottom-nav" aria-label="Primary navigation"></nav>
+  </div>
+  <div id="crisis-modal" class="modal-backdrop" hidden>
+    <section class="modal" role="alertdialog" aria-modal="true" aria-labelledby="crisis-title">
+      <button class="modal-close" aria-label="Close support panel" data-crisis-close>×</button>
+      <span class="eyebrow danger">Immediate support</span><h2 id="crisis-title">You do not have to handle this alone.</h2>
+      <p id="crisis-message">If you may be in immediate danger, contact local emergency services or a trusted person now.</p>
+      <div class="modal-actions"><a class="button primary" href="tel:112">Call emergency services</a><a class="button secondary" href="tel:14416">Call Tele-MANAS</a></div>
+      <p class="fine-print">India: Tele-MANAS 14416 or 1-800-891-4416. If you are elsewhere, use your local crisis line.</p>
+    </section>
+  </div>
+  <script type="module" src="/app.js?v=20260919-5"></script>
+</body>
+</html>

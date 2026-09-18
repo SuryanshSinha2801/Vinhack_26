@@ -4,6 +4,12 @@
 >
 > Stack pinned in repo `requirements.txt`: SQLAlchemy 2.0 + Alembic + psycopg2/asyncpg.
 
+## Local demo workbook
+
+`data/demo/mindtrail_demo.xlsx` temporarily supplies five fictional accounts and 15 days of synthetic history. At startup, missing demo accounts are imported from the `Demo Users` sheet and their passwords are hashed before local storage.
+
+Excel is not the production database. It lacks suitable concurrency, row-level access control, auditability, and safeguards for real wellbeing records. PostgreSQL remains the intended persistent store; Supabase remains a possible production authentication provider.
+
 ---
 
 ## 1. Design Principles

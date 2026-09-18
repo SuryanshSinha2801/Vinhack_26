@@ -34,12 +34,18 @@ This exposes the development server to the local network. Do not use the develop
 | `GET` | `/health` | None | Implemented |
 | `GET` | `/v1/health` | None | Implemented |
 | `GET` | `/v1/checkins/today` | None in MVP | Implemented |
+| `POST` | `/v1/auth/register` | None | Implemented for local demo |
+| `POST` | `/v1/auth/login` | None | Implemented for local demo |
+| `GET` | `/v1/auth/me` | Session cookie or bearer token | Implemented for local demo |
+| `POST` | `/v1/auth/logout` | Session cookie | Implemented for local demo |
+| `GET` | `/v1/me/dashboard` | Session cookie or bearer token | Implemented from synthetic Excel history |
+| `POST` | `/v1/checkins` | Session cookie or bearer token | Implemented; validates and stores the signed-in user's check-in |
 
 ## Planned routes
 
 | Area | Routes |
 |---|---|
-| Authentication | `POST /v1/auth/register`, `/login`, `/refresh` |
+| Authentication | Refresh, password reset, and production identity provider integration |
 | Consent | `GET/PUT /v1/me/consent` |
 | Submission | `POST /v1/checkins` |
 | Conversations | `/v1/conversations/*`, `/v1/me/conversations` |
@@ -195,4 +201,3 @@ Before declaring the API contract complete, tests must cover:
 - [ ] Database persistence exists.
 - [ ] Authentication and consent gates exist.
 - [ ] Deletion and export operations exist.
-

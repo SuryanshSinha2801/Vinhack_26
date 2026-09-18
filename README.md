@@ -94,3 +94,16 @@ MindTrail treats trust as a core design constraint:
 MindTrail is a support and escalation tool, not a diagnostic or clinical product. It is designed to surface early signals and connect students to human professionals — it does not replace licensed mental health care.
 
 See [PRD.md](./PRD.md) for the full product requirements.
+
+## Run the website
+
+The responsive frontend is served by the FastAPI application, so only one development server is required:
+
+```powershell
+.venv\Scripts\Activate.ps1
+uvicorn api.app.main:app --reload
+```
+
+Open `http://127.0.0.1:8000/` for the website or `http://127.0.0.1:8000/docs` for the API documentation. If Uvicorn was already running before the frontend was added, stop it with `Ctrl+C` and start it again.
+
+Five fictional username/password accounts and 15 days of synthetic history are available in [`data/demo/mindtrail_demo.xlsx`](./data/demo/mindtrail_demo.xlsx). See [`docs/DEMO_DATA.md`](./docs/DEMO_DATA.md) for the credentials and safety limits.

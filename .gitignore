@@ -10,6 +10,7 @@ __pycache__/
 .mypy_cache/
 .ruff_cache/
 .cache/
+.artifact-work/
 .venv/
 venv/
 
@@ -20,6 +21,7 @@ htmlcov/
 # Private student wellbeing exports and local seed data
 MindTrail – Student Wellbeing Check-in.csv
 data/private/
+.data/
 
 # Editors and operating systems
 .idea/

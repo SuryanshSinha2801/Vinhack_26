@@ -1,5 +1,5 @@
 from datetime import date
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
@@ -42,3 +42,14 @@ class TodayCheckin(BaseModel):
     sections: list[CheckinSection]
     immediate_support_message: str
 
+
+class CheckinSubmission(BaseModel):
+    form_version: str
+    answers: dict[str, Any]
+
+
+class CheckinSubmissionResult(BaseModel):
+    date: date
+    username: str
+    created: bool
+    message: str

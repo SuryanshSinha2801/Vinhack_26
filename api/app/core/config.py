@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     app_debug: bool = False
     api_v1_prefix: str = "/v1"
     database_url: str = "postgresql+asyncpg://mindtrail:mindtrail@localhost:5432/mindtrail"
+    auth_database_url: str = "sqlite:///./.data/mindtrail-auth.db"
     redis_url: str = "redis://localhost:6379/0"
     jwt_secret_key: str = Field(min_length=32)
     jwt_algorithm: str = "HS256"
@@ -35,4 +36,3 @@ def get_settings() -> Settings:
 
 
 settings = get_settings()
-

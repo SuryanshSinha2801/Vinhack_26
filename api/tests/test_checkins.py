@@ -1,4 +1,7 @@
 from fastapi.testclient import TestClient
+from openpyxl import load_workbook
+from pathlib import Path
+from shutil import copy2
 
 from api.app.main import app
 
@@ -52,3 +55,44 @@ def test_immediate_help_option_triggers_support_path() -> None:
         }
     ]
 
+
+def test_authenticated_checkin_is_saved_to_excel(tmp_path, monkeypatch) -> None:
+    source = Path("data/demo/mindtrail_demo.xlsx")
+    target = tmp_path / "demo.xlsx"
+    copy2(source, target)
+    monkeypatch.setattr("api.app.services.checkin_store.WORKBOOK_PATH", target)
+
+    client = TestClient(app)
+    assert client.post(
+        "/v1/auth/login", json={"username": "arjun01", "password": "Trail@Arjun26"}
+    ).status_code == 200
+    response = client.post(
+        "/v1/checkins",
+        json={
+            "form_version": "2026-09-18",
+            "answers": {
+                "year_of_study": "Year 2",
+                "overall_mood": 4,
+                "stress_level": 2,
+                "energy_level": "Good",
+                "sleep_quality": "Good",
+                "sleep_hours": 7,
+                "academic_workload": "Manageable",
+                "additional_support": "No, I am doing okay",
+                "immediate_help": "No",
+                "follow_up_requested": "No",
+                "trend_suggestions_consent": "Yes",
+                "privacy_acknowledgement": [
+                    "I understand that this check-in is voluntary and is intended to support my wellbeing."
+                ],
+            },
+        },
+    )
+    assert response.status_code == 200
+    assert response.json()["data"]["username"] == "arjun01"
+
+    workbook = load_workbook(target, read_only=True, data_only=True)
+    assert "Check-in Submissions" in workbook.sheetnames
+    audit = workbook["Check-in Submissions"]
+    assert audit.cell(audit.max_row, 2).value == "arjun01"
+    workbook.close()
