@@ -4,11 +4,13 @@
 >
 > Stack pinned in repo `requirements.txt`: SQLAlchemy 2.0 + Alembic + psycopg2/asyncpg.
 
-## Local demo workbook
+## Implemented operational storage
 
-`data/demo/mindtrail_demo_6_months.xlsx` temporarily supplies 40 fictional accounts and 180 days of synthetic history. At startup, missing demo accounts are imported from populated `Demo Users` rows and their passwords are hashed before local storage. A successful submission updates that user's date-wise history, appends one audit row, and is immediately returned through the dashboard API. The audit sheet enforces one submitted check-in per username and calendar date; duplicate attempts return HTTP 409 without changing the workbook. Calendar dates use `APP_TIMEZONE` (`Asia/Kolkata` by default), while the audit timestamp is stored in UTC. Dashboard range controls select actual calendar periods rather than a fixed number of rows; missed days are not fabricated.
+The running application now stores users and daily check-ins in one SQLAlchemy database. SQLite is the zero-setup development default and PostgreSQL is selected by setting `APP_DATABASE_URL`. The implemented `daily_checkins` table includes the normalized dashboard values, the complete answer envelope as JSON, the local calendar date, and a UTC submission timestamp. A database unique constraint on `(user_id, checkin_date)` prevents duplicate daily submissions even under concurrent requests.
 
-Excel is not the production database. It lacks suitable concurrency, row-level access control, auditability, and safeguards for real wellbeing records. PostgreSQL remains the intended persistent store; Supabase remains a possible production authentication provider.
+`data/demo/mindtrail_demo_6_months.xlsx` is now seed/import data only. On an empty database, startup imports its 40 fictional accounts and synthetic history. New check-ins, dashboard queries, and personalization queries no longer read or write Excel. Calendar dates use `APP_TIMEZONE` (`Asia/Kolkata` by default), while submission timestamps are stored in UTC. Dashboard range controls select actual calendar periods; missed days are not fabricated.
+
+See [`POSTGRESQL_SETUP.md`](./POSTGRESQL_SETUP.md) for local PostgreSQL setup and verification.
 
 ---
 

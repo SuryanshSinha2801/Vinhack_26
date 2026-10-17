@@ -38,4 +38,4 @@ If the student previously selected `No` for trend-based suggestions, the curator
 - The immediate-help question remains fixed and bypasses ML/ranking logic.
 - A positive immediate-help response opens the deterministic support interface.
 - The dashboard ML output and question curator are separate; neither silently makes referral or treatment decisions.
-- The current Excel implementation is for fictional hackathon data only.
+- The current relational implementation uses fictional hackathon seed data; real student use requires formal privacy, clinical-safety, and governance review.

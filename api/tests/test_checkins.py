@@ -1,12 +1,13 @@
 from fastapi.testclient import TestClient
-from openpyxl import load_workbook
-from pathlib import Path
-from shutil import copy2
 from datetime import date
-import json
+from uuid import uuid4
 
+from sqlalchemy import select
+
+from api.app.core.security import hash_password
+from api.app.database import SessionLocal
 from api.app.main import app
-from api.app.services.checkin_store import normalized_date
+from api.app.models import DailyCheckin, User
 from api.app.services.question_curator import get_personalization, rank_focus_areas
 
 
@@ -86,23 +87,29 @@ def test_curator_prioritizes_sleep_and_academic_pressure() -> None:
     assert set(focus) == {"sleep", "academic"}
 
 
-def test_curator_respects_trend_personalization_opt_out(tmp_path, monkeypatch) -> None:
-    source = Path("data/demo/mindtrail_demo_6_months.xlsx")
-    target = tmp_path / "consent-demo.xlsx"
-    copy2(source, target)
-    workbook = load_workbook(target)
-    workbook["Check-in Submissions"].append([
-        None,
-        "arjun01",
-        date.today(),
-        "2026-10-17",
-        json.dumps({"trend_suggestions_consent": "No"}),
-    ])
-    workbook.save(target)
-    workbook.close()
-    monkeypatch.setattr("api.app.services.question_curator.WORKBOOK_PATH", target)
-
-    personalization = get_personalization("arjun01")
+def test_curator_respects_trend_personalization_opt_out() -> None:
+    with SessionLocal() as db:
+        user = User(
+            username=f"optout-{uuid4().hex}",
+            display_name="Opt Out",
+            password_hash=hash_password("testing-password"),
+        )
+        db.add(user)
+        db.flush()
+        db.add(
+            DailyCheckin(
+                user_id=user.id,
+                checkin_date=date(2098, 12, 31),
+                mood=3,
+                stress=3,
+                sleep_hours=7,
+                energy=3,
+                connectedness=3,
+                answers={"trend_suggestions_consent": "No"},
+            )
+        )
+        db.commit()
+        personalization = get_personalization(user, db)
     assert personalization.personalized is False
     assert personalization.based_on_days == 0
     assert "were not used" in personalization.explanation
@@ -131,21 +138,21 @@ def test_immediate_help_option_triggers_support_path() -> None:
     ]
 
 
-def test_authenticated_checkin_is_saved_to_excel(tmp_path, monkeypatch) -> None:
-    source = Path("data/demo/mindtrail_demo_6_months.xlsx")
-    target = tmp_path / "demo.xlsx"
-    copy2(source, target)
-    monkeypatch.setattr("api.app.services.checkin_store.WORKBOOK_PATH", target)
-    monkeypatch.setattr("api.app.services.question_curator.WORKBOOK_PATH", target)
+def test_authenticated_checkin_is_saved_to_database(monkeypatch) -> None:
     test_day = date(2099, 1, 2)
     monkeypatch.setattr("api.app.services.checkin_store.local_today", lambda: test_day)
 
     client = TestClient(app)
-    login(client)
+    username = f"checkin-{uuid4().hex}"
+    register = client.post(
+        "/v1/auth/register",
+        json={"username": username, "display_name": "Test Student", "password": "testing-password"},
+    )
+    assert register.status_code == 201
     assert client.get("/v1/checkins/today").json()["data"]["completed"] is False
     response = client.post("/v1/checkins", json=submission_payload())
     assert response.status_code == 200
-    assert response.json()["data"]["username"] == "arjun01"
+    assert response.json()["data"]["username"] == username
     assert response.json()["data"]["date"] == test_day.isoformat()
     assert client.get("/v1/checkins/today").json()["data"]["completed"] is True
 
@@ -153,13 +160,13 @@ def test_authenticated_checkin_is_saved_to_excel(tmp_path, monkeypatch) -> None:
     assert duplicate.status_code == 409
     assert "already completed" in duplicate.json()["detail"]
 
-    workbook = load_workbook(target, read_only=True, data_only=True)
-    assert "Check-in Submissions" in workbook.sheetnames
-    audit = workbook["Check-in Submissions"]
-    assert audit.cell(audit.max_row, 2).value == "arjun01"
-    submitted_rows = [
-        row for row in audit.iter_rows(min_row=2, min_col=1, max_col=5, values_only=True)
-        if row[1] == "arjun01" and normalized_date(row[2]) == test_day
-    ]
-    assert len(submitted_rows) == 1
-    workbook.close()
+    with SessionLocal() as db:
+        user = db.scalar(select(User).where(User.username == username))
+        saved = db.scalars(
+            select(DailyCheckin).where(
+                DailyCheckin.user_id == user.id,
+                DailyCheckin.checkin_date == test_day,
+            )
+        ).all()
+        assert len(saved) == 1
+        assert saved[0].answers["overall_mood"] == 4

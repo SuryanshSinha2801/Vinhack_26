@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     api_v1_prefix: str = "/v1"
     app_timezone: str = "Asia/Kolkata"
     database_url: str = "postgresql+asyncpg://mindtrail:mindtrail@localhost:5432/mindtrail"
+    app_database_url: str | None = None
     auth_database_url: str = "sqlite:///./.data/mindtrail-auth.db"
     redis_url: str = "redis://localhost:6379/0"
     jwt_secret_key: str = Field(min_length=32)

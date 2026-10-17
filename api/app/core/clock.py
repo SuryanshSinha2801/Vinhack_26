@@ -14,6 +14,6 @@ def local_today() -> date:
     return local_now().date()
 
 
-def utc_now_naive() -> datetime:
-    """Return a UTC timestamp compatible with Excel's timezone-naive cells."""
-    return datetime.now(timezone.utc).replace(tzinfo=None)
+def utc_now() -> datetime:
+    """Return an aware UTC timestamp for relational persistence."""
+    return datetime.now(timezone.utc)

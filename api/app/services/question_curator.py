@@ -1,14 +1,14 @@
 from __future__ import annotations
 
 import hashlib
-import json
 from datetime import date
 
-from openpyxl import load_workbook
+from sqlalchemy import select
+from sqlalchemy.orm import Session
 
 from api.app.core.clock import local_today
+from api.app.models import DailyCheckin, User
 from api.app.schemas.checkins import CheckinPersonalization
-from api.app.services.demo_users import WORKBOOK_PATH
 
 
 STRATEGY_VERSION = "adaptive-checkin-v1"
@@ -56,38 +56,31 @@ def rank_focus_areas(records: list[dict[str, float]], username: str, today: date
     return sorted(scores, key=lambda name: (-scores[name], tie_break[name]))[:2]
 
 
-def get_personalization(username: str) -> CheckinPersonalization:
-    records: list[dict[str, float]] = []
+def get_personalization(user: User, db: Session) -> CheckinPersonalization:
+    history = db.scalars(
+        select(DailyCheckin)
+        .where(DailyCheckin.user_id == user.id)
+        .order_by(DailyCheckin.checkin_date)
+    ).all()
+    records = [
+        {
+            "date": row.checkin_date,
+            "mood": row.mood,
+            "stress": row.stress,
+            "sleep_hours": row.sleep_hours,
+            "energy": row.energy,
+            "connectedness": row.connectedness,
+        }
+        for row in history
+    ]
     consent: str | None = None
-    if WORKBOOK_PATH.exists():
-        workbook = load_workbook(WORKBOOK_PATH, read_only=True, data_only=True)
-        history = workbook["15-Day History"]
-        for row in history.iter_rows(min_row=2, min_col=1, max_col=10, values_only=True):
-            if str(row[1] or "").strip().lower() != username.lower():
-                continue
-            records.append({
-                "date": row[0],
-                "mood": float(row[2] or 0),
-                "stress": float(row[3] or 0),
-                "sleep_hours": float(row[4] or 0),
-                "energy": float(row[5] or 0),
-                "connectedness": float(row[6] or 0),
-            })
-        records.sort(key=lambda row: row["date"])
-        if "Check-in Submissions" in workbook.sheetnames:
-            audit = workbook["Check-in Submissions"]
-            for row in audit.iter_rows(min_row=2, min_col=2, max_col=5, values_only=True):
-                if str(row[0] or "").strip().lower() != username.lower() or not row[3]:
-                    continue
-                try:
-                    answers = json.loads(str(row[3]))
-                    consent = answers.get("trend_suggestions_consent", consent)
-                except (TypeError, ValueError, json.JSONDecodeError):
-                    continue
-        workbook.close()
+    for row in reversed(history):
+        if row.answers and "trend_suggestions_consent" in row.answers:
+            consent = str(row.answers["trend_suggestions_consent"])
+            break
 
     allowed = consent != "No"
-    focus_areas = rank_focus_areas(records if allowed else [], username, local_today())
+    focus_areas = rank_focus_areas(records if allowed else [], user.username, local_today())
     labels = [FOCUS_LABELS[area] for area in focus_areas]
     if records and allowed:
         explanation = f"Today includes {labels[0]} and {labels[1]} based on your recent check-in patterns."

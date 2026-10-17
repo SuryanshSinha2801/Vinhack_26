@@ -111,3 +111,5 @@ Forty fictional username/password accounts and 180 days of synthetic history (7,
 The dashboard includes a compact PyTorch trend classifier trained on rolling seven-day signals. It was trained on an RTX 5060 with eight users held out for testing. Its output is a synthetic-data demo indicator, never a diagnosis or an automated care decision. Training details are in [`docs/ML_MODEL.md`](./docs/ML_MODEL.md).
 
 Daily check-ins use an authenticated adaptive-question curator. Core safety and longitudinal questions always remain, while two optional focus areas are selected from recent sleep, stress, connection, mood, and energy patterns. Consent opt-out and cold-start behavior are documented in [`docs/PERSONALIZATION.md`](./docs/PERSONALIZATION.md).
+
+Operational users and daily check-ins now use SQLAlchemy relational storage. SQLite remains the zero-setup local default; set `APP_DATABASE_URL` to a PostgreSQL `postgresql+psycopg2://...` URL to use PostgreSQL without changing application code. The database enforces one record per user and calendar date. See [`docs/POSTGRESQL_SETUP.md`](./docs/POSTGRESQL_SETUP.md).

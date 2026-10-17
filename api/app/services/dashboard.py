@@ -1,37 +1,33 @@
-from openpyxl import load_workbook
+from sqlalchemy import select
+from sqlalchemy.orm import Session
 
+from api.app.models import DailyCheckin, User
 from api.app.schemas.dashboard import DailyWellbeingRecord, DashboardSummary, UserDashboard
-from api.app.services.demo_users import WORKBOOK_PATH
 from api.app.services.wellbeing_model import predict_wellbeing
 
 
-def get_user_dashboard(username: str, display_name: str) -> UserDashboard | None:
-    if not WORKBOOK_PATH.exists():
-        return None
-    workbook = load_workbook(WORKBOOK_PATH, read_only=True, data_only=True)
-    sheet = workbook["15-Day History"]
-    history: list[DailyWellbeingRecord] = []
-    for row in sheet.iter_rows(min_row=2, min_col=1, max_col=10, values_only=True):
-        record_date, record_username, mood, stress, sleep, energy, connectedness, completed, support, note = row
-        if str(record_username).strip().lower() != username.lower():
-            continue
-        history.append(
-            DailyWellbeingRecord(
-                date=record_date.date() if hasattr(record_date, "date") else record_date,
-                mood=mood,
-                stress=stress,
-                sleep_hours=sleep,
-                energy=energy,
-                connectedness=connectedness,
-                checkin_completed=bool(completed),
-                support_response=str(support),
-                note=str(note),
-            )
+def get_user_dashboard(user: User, db: Session) -> UserDashboard | None:
+    rows = db.scalars(
+        select(DailyCheckin)
+        .where(DailyCheckin.user_id == user.id)
+        .order_by(DailyCheckin.checkin_date)
+    ).all()
+    history = [
+        DailyWellbeingRecord(
+            date=row.checkin_date,
+            mood=row.mood,
+            stress=row.stress,
+            sleep_hours=row.sleep_hours,
+            energy=row.energy,
+            connectedness=row.connectedness,
+            checkin_completed=row.checkin_completed,
+            support_response=row.support_response,
+            note=row.note,
         )
-    workbook.close()
+        for row in rows
+    ]
     if not history:
         return None
-    history.sort(key=lambda item: item.date)
     latest = history[-1]
     count = len(history)
     summary = DashboardSummary(
@@ -43,8 +39,8 @@ def get_user_dashboard(username: str, display_name: str) -> UserDashboard | None
         latest_stress=latest.stress,
     )
     return UserDashboard(
-        username=username,
-        display_name=display_name,
+        username=user.username,
+        display_name=user.display_name,
         summary=summary,
         history=history,
         insight=predict_wellbeing(history),
