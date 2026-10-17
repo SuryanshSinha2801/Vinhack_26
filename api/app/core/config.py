@@ -1,7 +1,7 @@
 from functools import lru_cache
 from typing import Literal
 
-from pydantic import Field
+from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -27,9 +27,26 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = Field(default=30, gt=0)
     refresh_token_expire_days: int = Field(default=7, gt=0)
+    csrf_enabled: bool = True
+    rate_limit_enabled: bool = True
     llm_provider: Literal["disabled", "openai", "anthropic"] = "disabled"
     openai_api_key: str | None = None
     anthropic_api_key: str | None = None
+
+    @model_validator(mode="after")
+    def validate_production_security(self):
+        if self.app_env != "production":
+            return self
+        database_url = self.app_database_url or self.auth_database_url
+        if self.app_debug:
+            raise ValueError("APP_DEBUG must be false in production")
+        if not database_url.startswith("postgresql"):
+            raise ValueError("APP_DATABASE_URL must use PostgreSQL in production")
+        if self.jwt_secret_key.startswith(("dev-only", "replace-with")):
+            raise ValueError("JWT_SECRET_KEY must be rotated before production")
+        if not self.csrf_enabled or not self.rate_limit_enabled:
+            raise ValueError("CSRF and rate limiting must be enabled in production")
+        return self
 
 
 @lru_cache

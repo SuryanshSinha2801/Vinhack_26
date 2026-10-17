@@ -194,6 +194,8 @@ Authorization: Bearer <access-token>
 
 Tokens must not be stored in source code, committed environment files, logs, analytics events, or Figma artifacts. The final mobile storage mechanism must use an appropriate secure-storage facility.
 
+The implemented website uses an HttpOnly `mindtrail_session` cookie. Every cookie-authenticated `POST`, `PUT`, `PATCH`, or `DELETE` request must copy the readable `mindtrail_csrf` cookie into the `X-CSRF-Token` header. Authentication and sensitive write endpoints may return `429 Too Many Requests` with `Retry-After`. Browser responses include CSP, anti-framing, MIME-sniffing, referrer, and permissions headers.
+
 ## Contract testing requirements
 
 Before declaring the API contract complete, tests must cover:

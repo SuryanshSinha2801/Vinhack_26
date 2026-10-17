@@ -67,3 +67,11 @@ This guarantees at most one daily check-in for each authenticated user, includin
 ## Production note
 
 Use a managed PostgreSQL instance, TLS, backups, restricted database credentials, reviewed Alembic migrations, and encrypted handling of sensitive wellbeing fields before using real student data. The fictional seed import is intended for the hackathon MVP.
+
+The current migration head is `20261017_04`. To create a timestamped custom-format dump under the ignored `data/private/backups` directory and validate that PostgreSQL can read its catalog:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\backup_postgres.ps1
+```
+
+The script intentionally does not save a database password. PostgreSQL may prompt for it. Treat every backup as sensitive and keep it encrypted and outside Git.

@@ -363,6 +363,8 @@ Severe-risk exception: only `crisis_events` (with human review) can identify a s
 
 ## 8. Traceability Check (docs consistency)
 
+The implemented `security_audit_events` table records authentication, consent, export, deletion, and administrator-dashboard events. It stores an HMAC actor reference and limited event metadata—not usernames, passwords, check-in answers, or exported content. The `20261017_04` Alembic migration creates this append-oriented operational audit table.
+
 | API group (`ARCHITECTURE.md` §3) | Tables |
 |---|---|
 | Auth & consent | `users`, `consent_records`, `audit_log` |

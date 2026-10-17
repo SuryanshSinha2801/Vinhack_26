@@ -64,3 +64,19 @@ class ConsentRecord(Base):
     )
 
     user: Mapped[User] = relationship(back_populates="consent_records")
+
+
+class SecurityAuditEvent(Base):
+    __tablename__ = "security_audit_events"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    event_type: Mapped[str] = mapped_column(String(60), index=True)
+    actor_user_id: Mapped[int | None] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True
+    )
+    actor_reference: Mapped[str] = mapped_column(String(64), index=True)
+    outcome: Mapped[str] = mapped_column(String(20))
+    event_data: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), index=True
+    )

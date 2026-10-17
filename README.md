@@ -119,3 +119,5 @@ Operational users and daily check-ins now use SQLAlchemy relational storage. SQL
 The protected administrator dashboard is available only to accounts with the `admin` role. It reports aggregate operational metrics, suppresses wellbeing statistics for groups smaller than five, and never returns usernames or raw answers. Create an administrator locally with `python -m scripts.create_admin <username>`.
 
 Authenticated students can manage trend-personalization consent, download a complete JSON copy of their own data, and permanently delete their own account and records after password re-authentication and explicit confirmation. Administrator accounts cannot use the student self-deletion endpoint.
+
+The web app now adds double-submit CSRF protection for cookie-authenticated mutations, endpoint rate limits, restrictive browser security headers, production configuration guards, and privacy-preserving security audit events. Rate limiting is process-local for the single-PC demo; use a shared Redis-backed limiter before running multiple workers. Create and validate a private PostgreSQL backup with `powershell -ExecutionPolicy Bypass -File scripts\backup_postgres.ps1`.
