@@ -8,7 +8,9 @@
 
 The running application now stores users and daily check-ins in one SQLAlchemy database. SQLite is the zero-setup development default and PostgreSQL is selected by setting `APP_DATABASE_URL`. The implemented `daily_checkins` table includes the normalized dashboard values, the complete answer envelope as JSON, the local calendar date, and a UTC submission timestamp. A database unique constraint on `(user_id, checkin_date)` prevents duplicate daily submissions even under concurrent requests.
 
-`data/demo/mindtrail_demo_6_months.xlsx` is now seed/import data only. On an empty database, startup imports its 40 fictional accounts and synthetic history. New check-ins, dashboard queries, and personalization queries no longer read or write Excel. Calendar dates use `APP_TIMEZONE` (`Asia/Kolkata` by default), while submission timestamps are stored in UTC. Dashboard range controls select actual calendar periods; missed days are not fabricated.
+`data/demo/mindtrail_demo_6_months.xlsx` is now seed/import data only. After `alembic upgrade head`, an operator may run `python -m scripts.seed_demo_data` to import its 40 fictional accounts and synthetic history into an empty database. Application startup never imports data implicitly. New check-ins, dashboard queries, and personalization queries no longer read or write Excel. Calendar dates use `APP_TIMEZONE` (`Asia/Kolkata` by default), while submission timestamps are stored in UTC. Dashboard range controls select actual calendar periods; missed days are not fabricated.
+
+Automated tests set `APP_DATABASE_URL` to a temporary SQLite file before importing the application. The test schema and fictional history are created only in that disposable database, keeping the configured PostgreSQL database isolated.
 
 See [`POSTGRESQL_SETUP.md`](./POSTGRESQL_SETUP.md) for local PostgreSQL setup and verification.
 

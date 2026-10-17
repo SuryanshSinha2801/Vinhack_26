@@ -38,7 +38,15 @@ python -m pip install -r requirements.txt
 uvicorn api.app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-On the first start, SQLAlchemy creates the implemented tables and imports the fictional workbook seed history if the `daily_checkins` table is empty. Excel is not used for subsequent submissions.
+Before the first start, apply the committed schema migration and explicitly import the fictional demo data:
+
+```powershell
+alembic upgrade head
+python -m scripts.seed_demo_data
+uvicorn api.app.main:app --reload --host 127.0.0.1 --port 8000
+```
+
+`alembic upgrade head` is safe to run again when checking for pending migrations. The seed command only imports workbook history when `daily_checkins` is empty. Excel is not used for subsequent submissions.
 
 ## 4. Verify the data
 
@@ -58,4 +66,4 @@ This guarantees at most one daily check-in for each authenticated user, includin
 
 ## Production note
 
-Use a managed PostgreSQL instance, TLS, backups, restricted database credentials, proper Alembic migrations, and encrypted handling of sensitive wellbeing fields before using real student data. The current automatic table creation and fictional seed import are intended for the hackathon MVP.
+Use a managed PostgreSQL instance, TLS, backups, restricted database credentials, reviewed Alembic migrations, and encrypted handling of sensitive wellbeing fields before using real student data. The fictional seed import is intended for the hackathon MVP.

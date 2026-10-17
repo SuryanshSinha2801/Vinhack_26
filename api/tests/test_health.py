@@ -13,7 +13,7 @@ def test_health_endpoint() -> None:
         "data": {
             "status": "ok",
             "service": "MindTrail API",
-            "environment": "development",
+            "environment": "test",
         },
         "error": None,
     }

@@ -46,6 +46,7 @@ Start the website:
 ```powershell
 cd C:\codes\Vinhack_26
 .\.venv\Scripts\Activate.ps1
+alembic upgrade head
 uvicorn api.app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
@@ -84,6 +85,14 @@ Check that the home page responds:
 ```
 
 Expected result: `200`.
+
+For a brand-new empty demo database, import fictional seed data once:
+
+```powershell
+python -m scripts.seed_demo_data
+```
+
+Do not run seed imports against a database intended for real student records.
 
 ## 6. Demo login
 
@@ -151,6 +160,8 @@ git diff --check
 
 Do not run tests against a production database containing real student information. Use a separate test database for any deployment beyond the hackathon demo.
 
+The repository's test bootstrap overrides `APP_DATABASE_URL` before importing the application, creates a temporary SQLite database, and removes it after the test session. Tests therefore do not write users or check-ins into the configured PostgreSQL database.
+
 ## 10. Install or update Python dependencies
 
 ```powershell
@@ -158,6 +169,7 @@ cd C:\codes\Vinhack_26
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
+alembic upgrade head
 ```
 
 Restart Uvicorn after dependency or `.env` changes.
@@ -334,6 +346,7 @@ cd C:\codes\Vinhack_26
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\.venv\Scripts\Activate.ps1
 Get-Service postgresql-x64-17
+alembic upgrade head
 uvicorn api.app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 

@@ -101,6 +101,8 @@ The responsive frontend is served by the FastAPI application, so only one develo
 
 ```powershell
 .venv\Scripts\Activate.ps1
+alembic upgrade head
+python -m scripts.seed_demo_data
 uvicorn api.app.main:app --reload
 ```
 
