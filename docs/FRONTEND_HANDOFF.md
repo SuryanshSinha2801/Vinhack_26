@@ -45,7 +45,7 @@ on a running local backend.
 |---|---|---|
 | `GET` | `/health` | Development health check |
 | `GET` | `/v1/health` | Versioned health check |
-| `GET` | `/v1/checkins/today` | Current form definition and display metadata |
+| `GET` | `/v1/checkins/today` | Authenticated adaptive form, completion state, focus areas, and display metadata |
 
 ### Planned; mock behind a repository interface
 
@@ -287,7 +287,7 @@ Required component properties:
 ## 12. Definition of done for frontend handoff
 
 - No secrets or student-response exports in the frontend repository or bundle
-- `GET /v1/checkins/today` renders every supported question type
+- `GET /v1/checkins/today` renders the returned adaptive question set by type; clients must not assume a fixed question count or order
 - Required validation and immediate-support behavior are tested
 - Loading, error, offline, and completed states exist
 - Components use shared tokens and Figma variants

@@ -2,26 +2,50 @@ from datetime import date
 
 from api.app.schemas.checkins import (
     CheckinOption,
+    CheckinPersonalization,
     CheckinQuestion,
     CheckinSection,
     TodayCheckin,
 )
 
 
+CORE_QUESTION_IDS = {
+    "year_of_study",
+    "overall_mood",
+    "stress_level",
+    "energy_level",
+    "additional_support",
+    "immediate_help",
+    "follow_up_requested",
+    "trend_suggestions_consent",
+    "privacy_acknowledgement",
+}
+FOCUS_QUESTION_IDS = {
+    "sleep": {"sleep_quality", "sleep_hours"},
+    "academic": {"academic_workload", "affected_areas"},
+    "connection": {"social_connection"},
+    "support": {"support_types", "additional_context"},
+}
+
+
 def options(*labels: str) -> list[CheckinOption]:
     return [CheckinOption(value=label, label=label) for label in labels]
 
 
-def get_today_checkin() -> TodayCheckin:
+def get_today_checkin(
+    completed: bool = False,
+    personalization: CheckinPersonalization | None = None,
+) -> TodayCheckin:
     """Return the current MindTrail check-in form.
 
     The catalog mirrors the linked Google Form while keeping the API independent
     from Google Forms. Completion will be populated from persistence later.
     """
 
-    return TodayCheckin(
+    form = TodayCheckin(
         date=date.today(),
-        form_version="2026-09-19",
+        completed=completed,
+        form_version="2026-10-17",
         title="MindTrail – Student Wellbeing Check-in",
         description=(
             "A short, private-feeling daily check-in designed for the MindTrail "
@@ -74,6 +98,16 @@ def get_today_checkin() -> TodayCheckin:
                         type="single_choice",
                         required=True,
                         options=options("Very low", "Low", "Moderate", "Good", "Very good"),
+                    ),
+                    CheckinQuestion(
+                        id="social_connection",
+                        prompt="How connected to other people have you felt recently?",
+                        type="linear_scale",
+                        required=True,
+                        min_value=1,
+                        max_value=5,
+                        min_label="Very disconnected",
+                        max_label="Very connected",
                     ),
                 ],
             ),
@@ -234,3 +268,21 @@ def get_today_checkin() -> TodayCheckin:
             "support service. Do not rely on MindTrail for emergency assistance."
         ),
     )
+
+    if personalization is None:
+        return form
+    selected_ids = set(CORE_QUESTION_IDS)
+    for focus_area in personalization.focus_areas:
+        selected_ids.update(FOCUS_QUESTION_IDS.get(focus_area, set()))
+    curated_sections: list[CheckinSection] = []
+    for section in form.sections:
+        questions = [question for question in section.questions if question.id in selected_ids]
+        if not questions:
+            continue
+        title = section.title.split(". ", 1)[-1]
+        curated_sections.append(
+            section.model_copy(
+                update={"title": f"{len(curated_sections) + 1}. {title}", "questions": questions}
+            )
+        )
+    return form.model_copy(update={"sections": curated_sections, "personalization": personalization})

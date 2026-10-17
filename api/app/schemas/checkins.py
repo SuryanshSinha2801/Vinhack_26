@@ -33,6 +33,14 @@ class CheckinSection(BaseModel):
     questions: list[CheckinQuestion] = Field(default_factory=list)
 
 
+class CheckinPersonalization(BaseModel):
+    strategy_version: str
+    personalized: bool
+    focus_areas: list[str]
+    based_on_days: int
+    explanation: str
+
+
 class TodayCheckin(BaseModel):
     date: date
     form_version: str
@@ -41,6 +49,7 @@ class TodayCheckin(BaseModel):
     completed: bool = False
     sections: list[CheckinSection]
     immediate_support_message: str
+    personalization: CheckinPersonalization | None = None
 
 
 class CheckinSubmission(BaseModel):

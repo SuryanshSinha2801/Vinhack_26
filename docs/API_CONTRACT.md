@@ -33,13 +33,13 @@ This exposes the development server to the local network. Do not use the develop
 |---|---|---|---|
 | `GET` | `/health` | None | Implemented |
 | `GET` | `/v1/health` | None | Implemented |
-| `GET` | `/v1/checkins/today` | None in MVP | Implemented |
+| `GET` | `/v1/checkins/today` | Session cookie or bearer token | Returns the form and the signed-in user's `completed` state for today |
 | `POST` | `/v1/auth/register` | None | Implemented for local demo |
 | `POST` | `/v1/auth/login` | None | Implemented for local demo |
 | `GET` | `/v1/auth/me` | Session cookie or bearer token | Implemented for local demo |
 | `POST` | `/v1/auth/logout` | Session cookie | Implemented for local demo |
 | `GET` | `/v1/me/dashboard` | Session cookie or bearer token | Date-wise Excel history plus a non-diagnostic ML trend indicator |
-| `POST` | `/v1/checkins` | Session cookie or bearer token | Implemented; validates and stores the signed-in user's check-in |
+| `POST` | `/v1/checkins` | Session cookie or bearer token | Validates and stores one check-in per user per date; duplicates return HTTP 409 |
 
 ## Planned routes
 
@@ -138,10 +138,13 @@ Do not use wildcard origins with credentialed requests in production.
 
 - Date and form version.
 - Title and description.
-- Completion placeholder.
-- Sections and questions.
+- The signed-in user's real once-per-day completion state.
+- A curated set of core and adaptive sections/questions.
+- Personalization metadata: strategy version, selected focus areas, number of history days used, and a user-facing explanation.
 - Question options and numeric bounds.
 - Immediate-support metadata and message.
+
+The core mood, stress, energy, support, immediate-help, follow-up, consent, and privacy questions are never removed. Two additional focus areas are ranked from recent trends: sleep, academic pressure, connection, and support preferences. If trend personalization consent is `No`, the endpoint uses a rotating generic mix and does not use recent history for question selection.
 
 Supported question types:
 
@@ -197,7 +200,7 @@ Before declaring the API contract complete, tests must cover:
 - [x] Figma and frontend token source exists.
 - [ ] Framework errors use the common envelope.
 - [ ] CORS supports Expo web development origins.
-- [ ] Check-in submission exists.
-- [ ] Database persistence exists.
-- [ ] Authentication and consent gates exist.
+- [x] Check-in submission exists.
+- [x] Demo database persistence exists.
+- [x] Authentication and trend-personalization consent gates exist.
 - [ ] Deletion and export operations exist.

@@ -7,10 +7,38 @@ from openpyxl import load_workbook
 from api.app.schemas.checkins import CheckinSubmission, CheckinSubmissionResult
 from api.app.services.checkin_catalog import get_today_checkin
 from api.app.services.demo_users import WORKBOOK_PATH
+from api.app.services.question_curator import get_personalization
 
 
 workbook_lock = Lock()
 ENERGY_VALUES = {"Very low": 1, "Low": 2, "Moderate": 3, "Good": 4, "Very good": 5}
+
+
+class DuplicateCheckinError(ValueError):
+    """Raised when a user tries to submit more than once on the same date."""
+
+
+def normalized_date(value):
+    return value.date() if hasattr(value, "date") else value
+
+
+def has_submitted_today(username: str) -> bool:
+    if not WORKBOOK_PATH.exists():
+        return False
+    today = date.today()
+    with workbook_lock:
+        workbook = load_workbook(WORKBOOK_PATH, read_only=True, data_only=True)
+        if "Check-in Submissions" not in workbook.sheetnames:
+            workbook.close()
+            return False
+        audit = workbook["Check-in Submissions"]
+        found = any(
+            str(row[1] or "").strip().lower() == username.lower()
+            and normalized_date(row[2]) == today
+            for row in audit.iter_rows(min_row=2, min_col=1, max_col=3, values_only=True)
+        )
+        workbook.close()
+        return found
 
 
 def expand_table(sheet, last_column: str) -> None:
@@ -20,8 +48,8 @@ def expand_table(sheet, last_column: str) -> None:
         first_table.ref = f"A1:{last_column}{sheet.max_row}"
 
 
-def validate_submission(submission: CheckinSubmission) -> None:
-    form = get_today_checkin()
+def validate_submission(username: str, submission: CheckinSubmission) -> None:
+    form = get_today_checkin(personalization=get_personalization(username))
     if submission.form_version != form.form_version:
         raise ValueError("The check-in form has changed. Refresh and try again.")
     for section in form.sections:
@@ -43,26 +71,36 @@ def validate_submission(submission: CheckinSubmission) -> None:
 
 
 def save_checkin(username: str, submission: CheckinSubmission) -> CheckinSubmissionResult:
-    validate_submission(submission)
+    validate_submission(username, submission)
     today = date.today()
     answers = submission.answers
     mood = float(answers["overall_mood"])
     stress = float(answers["stress_level"])
     sleep = float(answers.get("sleep_hours") or 0)
     energy = float(ENERGY_VALUES.get(str(answers["energy_level"]), 3))
-    connectedness = 3.0
+    connectedness = float(answers.get("social_connection") or 3)
     support = str(answers.get("additional_support") or "No action")
     note = str(answers.get("additional_context") or "Daily check-in")[:200]
 
     with workbook_lock:
         workbook = load_workbook(WORKBOOK_PATH)
+        audit = workbook["Check-in Submissions"] if "Check-in Submissions" in workbook.sheetnames else None
+        if audit is not None:
+            already_submitted = any(
+                str(row[1] or "").strip().lower() == username.lower()
+                and normalized_date(row[2]) == today
+                for row in audit.iter_rows(min_row=2, min_col=1, max_col=3, values_only=True)
+            )
+            if already_submitted:
+                workbook.close()
+                raise DuplicateCheckinError("You have already completed today's check-in. Come back tomorrow.")
         history = workbook["15-Day History"]
         existing_row = None
         for row in range(2, history.max_row + 1):
             row_date = history.cell(row, 1).value
             row_username = str(history.cell(row, 2).value or "").lower()
-            normalized_date = row_date.date() if hasattr(row_date, "date") else row_date
-            if row_username == username.lower() and normalized_date == today:
+            row_day = normalized_date(row_date)
+            if row_username == username.lower() and row_day == today:
                 existing_row = row
                 break
         values = [today, username, mood, stress, sleep, energy, connectedness, True, support, note]
@@ -73,11 +111,10 @@ def save_checkin(username: str, submission: CheckinSubmission) -> CheckinSubmiss
             history.append(values)
         expand_table(history, "J")
 
-        if "Check-in Submissions" not in workbook.sheetnames:
+        if audit is None:
             audit = workbook.create_sheet("Check-in Submissions")
             audit.append(["Submitted at (UTC)", "Username", "Date", "Form version", "Answers JSON"])
             audit.freeze_panes = "A2"
-        audit = workbook["Check-in Submissions"]
         audit.append([
             datetime.now(timezone.utc).replace(tzinfo=None), username, today,
             submission.form_version, json.dumps(answers, ensure_ascii=False),
