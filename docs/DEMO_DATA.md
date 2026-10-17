@@ -6,15 +6,9 @@ It contains 40 fictional accounts and 180 days of synthetic wellbeing history (7
 
 ## Demo credentials
 
-| Username | Password | Display name |
-| --- | --- | --- |
-| `arjun01` | `Trail@Arjun26` | Arjun |
-| `meera02` | `Trail@Meera26` | Meera |
-| `kabir03` | `Trail@Kabir26` | Kabir |
-| `anaya04` | `Trail@Anaya26` | Anaya |
-| `rohan05` | `Trail@Rohan26` | Rohan |
+The workbook contains reproducible fictional credentials for disposable local test databases only. Production mode refuses to run the demo seed command. Before exposing a previously seeded database, run `python -m scripts.rotate_local_security`; replacement credentials are written only to the Git-ignored `data/private/rotated_demo_credentials.csv` file.
 
-These credentials are intentionally public and must only be used for local demonstrations. They are not suitable for production or real student accounts.
+Credentials formerly printed in this document must be considered public and must never be accepted by an internet-accessible deployment.
 
 ## Workbook sheets
 

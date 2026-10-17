@@ -14,9 +14,9 @@ psycopg2-binary==2.9.9
 asyncpg==0.29.0
 
 # --- Auth / security ---
-python-jose[cryptography]==3.3.0
+python-jose[cryptography]==3.4.0
 passlib[bcrypt]==1.7.4
-python-multipart==0.0.9
+python-multipart==0.0.31
 
 # --- Scheduling / background jobs (data ingestion sync) ---
 apscheduler==3.10.4

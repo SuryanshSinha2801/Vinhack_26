@@ -1,11 +1,14 @@
 from sqlalchemy import func, select
 
 from api.app.database import SessionLocal, engine
+from api.app.core.config import settings
 from api.app.models import DailyCheckin, User
 from api.app.services.demo_users import seed_demo_history, seed_demo_users
 
 
 def main() -> None:
+    if settings.app_env == "production":
+        raise SystemExit("Demo-data seeding is disabled in production.")
     seed_demo_users()
     seed_demo_history()
     with SessionLocal() as db:
