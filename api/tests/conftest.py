@@ -12,6 +12,7 @@ os.environ["APP_DATABASE_URL"] = f"sqlite:///{_database_path.as_posix()}"
 os.environ["APP_ENV"] = "test"
 os.environ["CSRF_ENABLED"] = "false"
 os.environ["RATE_LIMIT_ENABLED"] = "false"
+os.environ["ALLOW_PUBLIC_REGISTRATION"] = "true"
 
 from api.app.database import Base, engine  # noqa: E402
 from api.app.services.demo_users import seed_demo_history, seed_demo_users  # noqa: E402

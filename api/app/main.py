@@ -4,7 +4,12 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
 from api.app.core.config import settings
-from api.app.middleware import CSRFMiddleware, RateLimitMiddleware, SecurityHeadersMiddleware
+from api.app.middleware import (
+    CSRFMiddleware,
+    RateLimitMiddleware,
+    RequestSizeLimitMiddleware,
+    SecurityHeadersMiddleware,
+)
 from api.app.routers.admin import router as admin_router
 from api.app.routers.auth import router as auth_router
 from api.app.routers.checkins import router as checkins_router
@@ -13,10 +18,19 @@ from api.app.routers.privacy import router as privacy_router
 from api.app.schemas.common import ApiResponse, HealthData
 
 
-app = FastAPI(title=settings.app_name, debug=settings.app_debug, version="0.1.0")
+production = settings.app_env == "production"
+app = FastAPI(
+    title=settings.app_name,
+    debug=settings.app_debug,
+    version="0.1.0",
+    docs_url=None if production else "/docs",
+    redoc_url=None if production else "/redoc",
+    openapi_url=None if production else "/openapi.json",
+)
 app.add_middleware(SecurityHeadersMiddleware)
 app.add_middleware(CSRFMiddleware)
 app.add_middleware(RateLimitMiddleware)
+app.add_middleware(RequestSizeLimitMiddleware)
 app.include_router(admin_router, prefix=settings.api_v1_prefix)
 app.include_router(auth_router, prefix=settings.api_v1_prefix)
 app.include_router(checkins_router, prefix=settings.api_v1_prefix)

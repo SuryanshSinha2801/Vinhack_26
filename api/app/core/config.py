@@ -29,6 +29,8 @@ class Settings(BaseSettings):
     refresh_token_expire_days: int = Field(default=7, gt=0)
     csrf_enabled: bool = True
     rate_limit_enabled: bool = True
+    allow_public_registration: bool = False
+    max_request_body_bytes: int = Field(default=65_536, ge=4_096, le=1_048_576)
     llm_provider: Literal["disabled", "openai", "anthropic"] = "disabled"
     openai_api_key: str | None = None
     anthropic_api_key: str | None = None

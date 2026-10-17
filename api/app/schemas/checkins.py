@@ -1,7 +1,7 @@
 from datetime import date
 from typing import Any, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 QuestionType = Literal["text", "number", "single_choice", "multiple_choice", "linear_scale"]
@@ -53,8 +53,25 @@ class TodayCheckin(BaseModel):
 
 
 class CheckinSubmission(BaseModel):
-    form_version: str
+    form_version: str = Field(min_length=1, max_length=80)
     answers: dict[str, Any]
+
+    @field_validator("answers")
+    @classmethod
+    def validate_answer_envelope(cls, answers: dict[str, Any]) -> dict[str, Any]:
+        if len(answers) > 30:
+            raise ValueError("Too many answers were submitted")
+        for key, value in answers.items():
+            if len(key) > 80:
+                raise ValueError("Answer identifier is too long")
+            if isinstance(value, str) and len(value) > 1_000:
+                raise ValueError(f"Answer is too long: {key}")
+            if isinstance(value, list):
+                if len(value) > 20 or any(not isinstance(item, str) or len(item) > 200 for item in value):
+                    raise ValueError(f"Invalid multiple-choice answer: {key}")
+            elif isinstance(value, (dict, tuple, set)):
+                raise ValueError(f"Nested answers are not allowed: {key}")
+        return answers
 
 
 class CheckinSubmissionResult(BaseModel):

@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from api.app.core.clock import local_today, utc_now
 from api.app.models import DailyCheckin, User
 from api.app.schemas.checkins import CheckinSubmission, CheckinSubmissionResult
-from api.app.services.checkin_catalog import get_today_checkin
+from api.app.services.checkin_catalog import CORE_QUESTION_IDS, FOCUS_QUESTION_IDS, get_today_checkin
 from api.app.services.question_curator import get_personalization
 
 
@@ -29,6 +29,12 @@ def validate_submission(user: User, submission: CheckinSubmission, db: Session) 
     form = get_today_checkin(personalization=get_personalization(user, db))
     if submission.form_version != form.form_version:
         raise ValueError("The check-in form has changed. Refresh and try again.")
+    expected_ids = set(CORE_QUESTION_IDS)
+    for focus_ids in FOCUS_QUESTION_IDS.values():
+        expected_ids.update(focus_ids)
+    unexpected_ids = set(submission.answers) - expected_ids
+    if unexpected_ids:
+        raise ValueError("Submission contains unknown answer identifiers.")
     for section in form.sections:
         for question in section.questions:
             value = submission.answers.get(question.id)
