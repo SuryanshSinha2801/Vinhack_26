@@ -6,6 +6,7 @@ from datetime import date
 import json
 
 from api.app.main import app
+from api.app.services.checkin_store import normalized_date
 from api.app.services.question_curator import get_personalization, rank_focus_areas
 
 
@@ -136,6 +137,8 @@ def test_authenticated_checkin_is_saved_to_excel(tmp_path, monkeypatch) -> None:
     copy2(source, target)
     monkeypatch.setattr("api.app.services.checkin_store.WORKBOOK_PATH", target)
     monkeypatch.setattr("api.app.services.question_curator.WORKBOOK_PATH", target)
+    test_day = date(2099, 1, 2)
+    monkeypatch.setattr("api.app.services.checkin_store.local_today", lambda: test_day)
 
     client = TestClient(app)
     login(client)
@@ -143,6 +146,7 @@ def test_authenticated_checkin_is_saved_to_excel(tmp_path, monkeypatch) -> None:
     response = client.post("/v1/checkins", json=submission_payload())
     assert response.status_code == 200
     assert response.json()["data"]["username"] == "arjun01"
+    assert response.json()["data"]["date"] == test_day.isoformat()
     assert client.get("/v1/checkins/today").json()["data"]["completed"] is True
 
     duplicate = client.post("/v1/checkins", json=submission_payload())
@@ -155,7 +159,7 @@ def test_authenticated_checkin_is_saved_to_excel(tmp_path, monkeypatch) -> None:
     assert audit.cell(audit.max_row, 2).value == "arjun01"
     submitted_rows = [
         row for row in audit.iter_rows(min_row=2, min_col=1, max_col=5, values_only=True)
-        if row[1] == "arjun01"
+        if row[1] == "arjun01" and normalized_date(row[2]) == test_day
     ]
     assert len(submitted_rows) == 1
     workbook.close()

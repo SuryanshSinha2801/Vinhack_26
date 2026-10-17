@@ -1,5 +1,4 @@
-from datetime import date
-
+from api.app.core.clock import local_today
 from api.app.schemas.checkins import (
     CheckinOption,
     CheckinPersonalization,
@@ -43,7 +42,7 @@ def get_today_checkin(
     """
 
     form = TodayCheckin(
-        date=date.today(),
+        date=local_today(),
         completed=completed,
         form_version="2026-10-17",
         title="MindTrail – Student Wellbeing Check-in",

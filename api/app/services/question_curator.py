@@ -6,6 +6,7 @@ from datetime import date
 
 from openpyxl import load_workbook
 
+from api.app.core.clock import local_today
 from api.app.schemas.checkins import CheckinPersonalization
 from api.app.services.demo_users import WORKBOOK_PATH
 
@@ -86,7 +87,7 @@ def get_personalization(username: str) -> CheckinPersonalization:
         workbook.close()
 
     allowed = consent != "No"
-    focus_areas = rank_focus_areas(records if allowed else [], username, date.today())
+    focus_areas = rank_focus_areas(records if allowed else [], username, local_today())
     labels = [FOCUS_LABELS[area] for area in focus_areas]
     if records and allowed:
         explanation = f"Today includes {labels[0]} and {labels[1]} based on your recent check-in patterns."

@@ -1,9 +1,10 @@
 import json
-from datetime import date, datetime, timezone
+from datetime import date
 from threading import Lock
 
 from openpyxl import load_workbook
 
+from api.app.core.clock import local_today, utc_now_naive
 from api.app.schemas.checkins import CheckinSubmission, CheckinSubmissionResult
 from api.app.services.checkin_catalog import get_today_checkin
 from api.app.services.demo_users import WORKBOOK_PATH
@@ -25,7 +26,7 @@ def normalized_date(value):
 def has_submitted_today(username: str) -> bool:
     if not WORKBOOK_PATH.exists():
         return False
-    today = date.today()
+    today = local_today()
     with workbook_lock:
         workbook = load_workbook(WORKBOOK_PATH, read_only=True, data_only=True)
         if "Check-in Submissions" not in workbook.sheetnames:
@@ -72,7 +73,7 @@ def validate_submission(username: str, submission: CheckinSubmission) -> None:
 
 def save_checkin(username: str, submission: CheckinSubmission) -> CheckinSubmissionResult:
     validate_submission(username, submission)
-    today = date.today()
+    today = local_today()
     answers = submission.answers
     mood = float(answers["overall_mood"])
     stress = float(answers["stress_level"])
@@ -116,7 +117,7 @@ def save_checkin(username: str, submission: CheckinSubmission) -> CheckinSubmiss
             audit.append(["Submitted at (UTC)", "Username", "Date", "Form version", "Answers JSON"])
             audit.freeze_panes = "A2"
         audit.append([
-            datetime.now(timezone.utc).replace(tzinfo=None), username, today,
+            utc_now_naive(), username, today,
             submission.form_version, json.dumps(answers, ensure_ascii=False),
         ])
         expand_table(audit, "E")

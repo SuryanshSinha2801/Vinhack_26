@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     app_env: Literal["development", "test", "production"] = "development"
     app_debug: bool = False
     api_v1_prefix: str = "/v1"
+    app_timezone: str = "Asia/Kolkata"
     database_url: str = "postgresql+asyncpg://mindtrail:mindtrail@localhost:5432/mindtrail"
     auth_database_url: str = "sqlite:///./.data/mindtrail-auth.db"
     redis_url: str = "redis://localhost:6379/0"
