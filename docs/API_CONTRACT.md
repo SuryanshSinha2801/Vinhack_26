@@ -39,6 +39,7 @@ This exposes the development server to the local network. Do not use the develop
 | `GET` | `/v1/auth/me` | Session cookie or bearer token | Implemented for local demo |
 | `POST` | `/v1/auth/logout` | Session cookie | Implemented for local demo |
 | `GET` | `/v1/me/dashboard` | Session cookie or bearer token | Date-wise relational history plus a non-diagnostic ML trend indicator |
+| `GET` | `/v1/admin/dashboard?days=30` | Administrator session only | Aggregate completion and wellbeing statistics; 7–180 days |
 | `POST` | `/v1/checkins` | Session cookie or bearer token | Validates and stores one check-in per user per date; duplicates return HTTP 409 |
 
 ## Planned routes
@@ -145,6 +146,12 @@ Do not use wildcard origins with credentialed requests in production.
 - Immediate-support metadata and message.
 
 The core mood, stress, energy, support, immediate-help, follow-up, consent, and privacy questions are never removed. Two additional focus areas are ranked from recent trends: sleep, academic pressure, connection, and support preferences. If trend personalization consent is `No`, the endpoint uses a rotating generic mix and does not use recent history for question selection.
+
+## Administrator aggregation contract
+
+Public registration always creates a `student`. Administrator accounts must be created or promoted from the local terminal. `/v1/admin/dashboard` returns HTTP `401` without authentication and `403` for authenticated students.
+
+The response contains active-student count, today's unique completion count and rate, total check-ins in the selected calendar window, and daily aggregate rows. When a day contains fewer than five distinct participants, mood average, stress average, and follow-up-request count are returned as `null` with `suppressed: true`. The endpoint never returns usernames, user IDs, raw answer JSON, notes, or individual records.
 
 Supported question types:
 

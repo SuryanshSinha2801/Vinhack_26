@@ -12,6 +12,8 @@ The running application now stores users and daily check-ins in one SQLAlchemy d
 
 Automated tests set `APP_DATABASE_URL` to a temporary SQLite file before importing the application. The test schema and fictional history are created only in that disposable database, keeping the configured PostgreSQL database isolated.
 
+The `users.role` column supports `student` and `admin` application roles. Public registration always uses `student`; administrators are provisioned through `python -m scripts.create_admin`. The admin API reads only aggregates and applies a minimum daily cohort size of five before returning mood, stress, or follow-up statistics.
+
 See [`POSTGRESQL_SETUP.md`](./POSTGRESQL_SETUP.md) for local PostgreSQL setup and verification.
 
 ---

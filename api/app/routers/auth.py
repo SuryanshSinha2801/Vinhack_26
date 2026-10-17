@@ -41,6 +41,12 @@ def current_user(
     return user
 
 
+def current_admin(user: User = Depends(current_user)) -> User:
+    if user.role != "admin":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Administrator access required")
+    return user
+
+
 @router.post("/register", response_model=ApiResponse[UserProfile], status_code=status.HTTP_201_CREATED)
 def register(payload: RegisterRequest, response: Response, db: Session = Depends(get_db)):
     if db.scalar(select(User).where(User.username == payload.username)):

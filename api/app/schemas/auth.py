@@ -28,6 +28,7 @@ class UserProfile(BaseModel):
     id: int
     username: str
     display_name: str
+    role: str
     created_at: datetime
 
     model_config = {"from_attributes": True}

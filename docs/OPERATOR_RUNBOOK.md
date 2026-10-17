@@ -105,6 +105,18 @@ Password: Trail@Arjun26
 
 These accounts are for demonstrations only. Do not reuse their passwords elsewhere.
 
+### Create an administrator
+
+Public registration cannot create administrators. From the activated project environment, run:
+
+```powershell
+python -m scripts.create_admin mindtrail_admin --display-name "MindTrail Administrator"
+```
+
+Enter a unique password of at least 12 characters when prompted. The command does not echo the password and does not store it in Git. Signing in with that account opens the aggregate administrator dashboard.
+
+The administrator view never provides individual profiles or raw answers. Daily wellbeing averages and follow-up counts are suppressed when fewer than five students participated.
+
 ## 7. PostgreSQL access
 
 The application database connection is configured by `APP_DATABASE_URL` in `.env`.
@@ -333,6 +345,8 @@ Restart Uvicorn and hard-refresh the browser with `Ctrl+F5`.
 - MindTrail is a non-diagnostic hackathon prototype, not a clinical system.
 - Use fictional data for demonstrations.
 - Keep raw answers private and show aggregate information whenever possible.
+- Create administrators only through the terminal and give each operator a separate account.
+- Never change a student's role through public registration or frontend code.
 - Stop the public tunnel immediately after a demo.
 - Back up the database before schema work or restoration.
 - Never delete users, check-ins, or backups without confirming the exact target and authorization.

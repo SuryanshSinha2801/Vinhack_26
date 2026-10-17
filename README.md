@@ -117,3 +117,5 @@ Daily check-ins use an authenticated adaptive-question curator. Core safety and 
 Operational users and daily check-ins now use SQLAlchemy relational storage. SQLite remains the zero-setup local default; set `APP_DATABASE_URL` to a PostgreSQL `postgresql+psycopg2://...` URL to use PostgreSQL without changing application code. The database enforces one record per user and calendar date. See [`docs/POSTGRESQL_SETUP.md`](./docs/POSTGRESQL_SETUP.md).
 
 For complete terminal-based operation on the configured Windows PC—including startup, shutdown, PostgreSQL inspection, backups, temporary public tunnels, tests, Git, and troubleshooting—see [`docs/OPERATOR_RUNBOOK.md`](./docs/OPERATOR_RUNBOOK.md).
+
+The protected administrator dashboard is available only to accounts with the `admin` role. It reports aggregate operational metrics, suppresses wellbeing statistics for groups smaller than five, and never returns usernames or raw answers. Create an administrator locally with `python -m scripts.create_admin <username>`.

@@ -13,6 +13,7 @@ def test_register_session_logout_and_login() -> None:
     registered = client.post("/v1/auth/register", json=credentials)
     assert registered.status_code == 201
     assert registered.json()["data"]["display_name"] == "Asha"
+    assert registered.json()["data"]["role"] == "student"
     assert registered.cookies.get("mindtrail_session")
     assert client.get("/v1/auth/me").status_code == 200
 
