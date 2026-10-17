@@ -14,6 +14,8 @@ Automated tests set `APP_DATABASE_URL` to a temporary SQLite file before importi
 
 The `users.role` column supports `student` and `admin` application roles. Public registration always uses `student`; administrators are provisioned through `python -m scripts.create_admin`. The admin API reads only aggregates and applies a minimum daily cohort size of five before returning mood, stress, or follow-up statistics.
 
+`consent_records` is an append-only history of each user's explicit trend-personalization choice. The newest record is authoritative. The self-service deletion transaction removes the authenticated student and cascades to `daily_checkins` and `consent_records`. The JSON export reads only rows owned by the authenticated user.
+
 See [`POSTGRESQL_SETUP.md`](./POSTGRESQL_SETUP.md) for local PostgreSQL setup and verification.
 
 ---

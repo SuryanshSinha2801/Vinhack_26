@@ -22,6 +22,9 @@ class User(Base):
     checkins: Mapped[list["DailyCheckin"]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
     )
+    consent_records: Mapped[list["ConsentRecord"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan"
+    )
 
 
 class DailyCheckin(Base):
@@ -48,3 +51,16 @@ class DailyCheckin(Base):
     answers: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
 
     user: Mapped[User] = relationship(back_populates="checkins")
+
+
+class ConsentRecord(Base):
+    __tablename__ = "consent_records"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    personalization_enabled: Mapped[bool] = mapped_column(Boolean)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), index=True
+    )
+
+    user: Mapped[User] = relationship(back_populates="consent_records")

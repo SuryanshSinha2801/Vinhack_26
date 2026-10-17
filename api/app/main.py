@@ -8,6 +8,7 @@ from api.app.routers.admin import router as admin_router
 from api.app.routers.auth import router as auth_router
 from api.app.routers.checkins import router as checkins_router
 from api.app.routers.dashboard import router as dashboard_router
+from api.app.routers.privacy import router as privacy_router
 from api.app.schemas.common import ApiResponse, HealthData
 
 
@@ -16,6 +17,7 @@ app.include_router(admin_router, prefix=settings.api_v1_prefix)
 app.include_router(auth_router, prefix=settings.api_v1_prefix)
 app.include_router(checkins_router, prefix=settings.api_v1_prefix)
 app.include_router(dashboard_router, prefix=settings.api_v1_prefix)
+app.include_router(privacy_router, prefix=settings.api_v1_prefix)
 
 
 def health_response() -> ApiResponse[HealthData]:

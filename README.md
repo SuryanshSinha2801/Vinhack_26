@@ -117,3 +117,5 @@ Daily check-ins use an authenticated adaptive-question curator. Core safety and 
 Operational users and daily check-ins now use SQLAlchemy relational storage. SQLite remains the zero-setup local default; set `APP_DATABASE_URL` to a PostgreSQL `postgresql+psycopg2://...` URL to use PostgreSQL without changing application code. The database enforces one record per user and calendar date. See [`docs/POSTGRESQL_SETUP.md`](./docs/POSTGRESQL_SETUP.md).
 
 The protected administrator dashboard is available only to accounts with the `admin` role. It reports aggregate operational metrics, suppresses wellbeing statistics for groups smaller than five, and never returns usernames or raw answers. Create an administrator locally with `python -m scripts.create_admin <username>`.
+
+Authenticated students can manage trend-personalization consent, download a complete JSON copy of their own data, and permanently delete their own account and records after password re-authentication and explicit confirmation. Administrator accounts cannot use the student self-deletion endpoint.

@@ -40,6 +40,10 @@ This exposes the development server to the local network. Do not use the develop
 | `POST` | `/v1/auth/logout` | Session cookie | Implemented for local demo |
 | `GET` | `/v1/me/dashboard` | Session cookie or bearer token | Date-wise relational history plus a non-diagnostic ML trend indicator |
 | `GET` | `/v1/admin/dashboard?days=30` | Administrator session only | Aggregate completion and wellbeing statistics; 7–180 days |
+| `GET` | `/v1/me/consent` | Student session | Current trend-personalization choice |
+| `POST` | `/v1/me/consent` | Student session | Append a new personalization consent decision |
+| `GET` | `/v1/me/export` | Authenticated owner | Complete JSON export of the caller's account, check-ins, answers, and consent history |
+| `DELETE` | `/v1/me/data` | Student session + password | Permanently delete the caller's account and related records after `DELETE` confirmation |
 | `POST` | `/v1/checkins` | Session cookie or bearer token | Validates and stores one check-in per user per date; duplicates return HTTP 409 |
 
 ## Planned routes
@@ -152,6 +156,12 @@ The core mood, stress, energy, support, immediate-help, follow-up, consent, and 
 Public registration always creates a `student`. Administrator accounts must be created or promoted from the local terminal. `/v1/admin/dashboard` returns HTTP `401` without authentication and `403` for authenticated students.
 
 The response contains active-student count, today's unique completion count and rate, total check-ins in the selected calendar window, and daily aggregate rows. When a day contains fewer than five distinct participants, mood average, stress average, and follow-up-request count are returned as `null` with `suppressed: true`. The endpoint never returns usernames, user IDs, raw answer JSON, notes, or individual records.
+
+## Privacy controls
+
+Consent decisions are append-only. The most recent explicit `POST /v1/me/consent` decision overrides consent captured in older check-in answers. When disabled, the question curator does not read history for focus-area selection and uses its generic rotating mix.
+
+`GET /v1/me/export` is owner-only and intentionally includes sensitive raw answers, so clients must save it locally and must not expose the response to administrators. `DELETE /v1/me/data` requires the current password and the exact confirmation value `DELETE`; deletion cascades to check-ins and consent history and clears the session cookie. Administrator deletion is intentionally rejected with HTTP `409` and requires a controlled operator process.
 
 Supported question types:
 

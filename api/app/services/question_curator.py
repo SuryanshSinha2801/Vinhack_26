@@ -7,7 +7,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from api.app.core.clock import local_today
-from api.app.models import DailyCheckin, User
+from api.app.models import ConsentRecord, DailyCheckin, User
 from api.app.schemas.checkins import CheckinPersonalization
 
 
@@ -73,11 +73,20 @@ def get_personalization(user: User, db: Session) -> CheckinPersonalization:
         }
         for row in history
     ]
+    explicit_consent = db.scalar(
+        select(ConsentRecord)
+        .where(ConsentRecord.user_id == user.id)
+        .order_by(ConsentRecord.created_at.desc(), ConsentRecord.id.desc())
+        .limit(1)
+    )
     consent: str | None = None
-    for row in reversed(history):
-        if row.answers and "trend_suggestions_consent" in row.answers:
-            consent = str(row.answers["trend_suggestions_consent"])
-            break
+    if explicit_consent is not None:
+        consent = "Yes" if explicit_consent.personalization_enabled else "No"
+    else:
+        for row in reversed(history):
+            if row.answers and "trend_suggestions_consent" in row.answers:
+                consent = str(row.answers["trend_suggestions_consent"])
+                break
 
     allowed = consent != "No"
     focus_areas = rank_focus_areas(records if allowed else [], user.username, local_today())
